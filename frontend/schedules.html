@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Schedules</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Schedules</h1>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Time</th>
+          <th>Location</th>
+          <th>Participants</th>
+          <th>Category</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="schedulesTableBody">
+        <!-- Schedules data will be dynamically added here -->
+      </tbody>
+    </table>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      // Get the JWT token from wherever you store it (e.g., localStorage)
+      var token = localStorage.getItem('token');
+
+      $.ajax({
+        url: 'http://localhost:3000/api/schedules',
+        type: 'GET',
+        headers: {
+          Authorization: 'Bearer ' + token
+        },
+        success: function(data) {
+          // Handle the response data and populate the table
+          var schedules = data;
+          var schedulesTableBody = $('#schedulesTableBody');
+
+          schedules.forEach(function(schedule) {
+            var row = $('<tr>');
+            row.append($('<td>').text(formatDate(schedule.date)));
+            row.append($('<td>').text(schedule.time));
+            row.append($('<td>').text(schedule.location));
+            row.append($('<td>').text(schedule.participants));
+            row.append($('<td>').text(schedule.category));
+
+            var detailsButton = $('<button>').addClass('btn btn-primary btn-sm').text('Show Details');
+            detailsButton.click(function() {
+              showDetails(schedule.id);
+            });
+
+            row.append($('<td>').append(detailsButton));
+
+            schedulesTableBody.append(row);
+          });
+        },
+        error: function(error) {
+          console.error('Error:', error);
+        }
+      });
+
+      function formatDate(date) {
+        var options = { day: 'numeric', month: 'short', year: 'numeric' };
+        return new Date(date).toLocaleDateString('en-US', options);
+      }
+    });
+
+    function showDetails(scheduleId) {
+      // Redirect to the daily schedule page with the schedule ID as a query parameter
+      window.location.href = 'daily_schedule.html?id=' + scheduleId;
+    }
+  </script>
+</body>
+</html>

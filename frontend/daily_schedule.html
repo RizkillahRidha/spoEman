@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Daily Schedule</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <style>
+    .card {
+      margin-bottom: 10px;
+      margin-right: 20px;
+      /* Add margin bottom to create space between cards */
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <a href="schedules.html" class="btn btn-secondary">Back</a>
+    <h1>Daily Schedule</h1>
+    <div id="dailyScheduleCards" class="row p-5"></div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+  <script>
+    $(document).ready(function () {
+      // Get the schedule ID from the query parameter
+      var urlParams = new URLSearchParams(window.location.search);
+      var scheduleId = urlParams.get('id');
+
+      // Get the JWT token from wherever you store it (e.g., localStorage)
+      var token = localStorage.getItem('token');
+
+      // Fetch the daily schedule data based on the schedule ID
+      $.ajax({
+        url: 'http://localhost:3000/api/daily_schedule/' + scheduleId,
+        type: 'GET',
+        headers: {
+          Authorization: 'Bearer ' + token
+        },
+        success: function (data) {
+          // Handle the response data and populate the cards
+          var dailySchedule = data.dailySchedule;
+          var dailyScheduleCards = $('#dailyScheduleCards');
+
+          dailySchedule.forEach(function (schedule) {
+            var card = $('<div>').addClass('card');
+            var cardBody = $('<div>').addClass('card-body');
+            var cardTitle = $('<h5>').addClass('card-title').text(formatTime(schedule.time));
+            var cardText = $('<p>').addClass('card-text').text(schedule.firstTeam + ' vs ' + schedule.secondTeam);
+
+            cardBody.append(cardTitle, cardText);
+            card.append(cardBody);
+            dailyScheduleCards.append(card);
+          });
+        },
+        error: function (error) {
+          console.error('Error:', error);
+        }
+      });
+    });
+
+    // Function to format the time as "14:00"
+    function formatTime(time) {
+      return time.substring(0, 5);
+    }
+  </script>
+</body>
+
+</html>
